@@ -16,7 +16,6 @@
 - [BibTeX](#bibtex)
 - [Acknowledgement](#acknowledgement)
 
-
 ### TODO:
 
 - [x] Codes
@@ -24,6 +23,9 @@
 - [x] Data Split
 - [ ] Update README (in progress)
 - [ ] Add codes for gaze estimation
+
+
+**We also have another work for egocentric gaze estimation. You can find more details [here](https://bolinlai.github.io/GLC-EgoGazeEst/) if you are interested.**
 
 
 ## Problem Definition

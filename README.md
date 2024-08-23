@@ -116,9 +116,9 @@ CUDA_VISIBLE_DEVICES=0,1 python tools/run_net.py \
     --init_method tcp://localhost:9880 \
     --cfg configs/Ego4d/CSTS_Ego4D_Gaze_Forecast.yaml \
     TRAIN.BATCH_SIZE 8 \
-    TEST.BATCH_SIZE 96 \
     NUM_GPUS 2 \
     TRAIN.CHECKPOINT_FILE_PATH /path/to/pretrained/K400_MVIT_B_16x4_CONV.pyth \
+    TEST.ENABLE False \
     OUTPUT_DIR out/csts_ego4d \
     DATA.PATH_PREFIX /path/to/Ego4D/clips.gaze \
     MODEL.LOSS_FUNC kldiv+egonce \
@@ -133,9 +133,9 @@ CUDA_VISIBLE_DEVICES=0,1 python tools/run_net.py \
     --init_method tcp://localhost:9880 \
     --cfg configs/Aria/CSTS_Aria_Gaze_Forecast.yaml \
     TRAIN.BATCH_SIZE 8 \
-    TEST.BATCH_SIZE 96 \
     NUM_GPUS 2 \
     TRAIN.CHECKPOINT_FILE_PATH /path/to/pretrained/K400_MVIT_B_16x4_CONV.pyth \
+    TEST.ENABLE False \
     OUTPUT_DIR out/csts_aria \
     DATA.PATH_PREFIX /path/to/Aria/clips \
     MODEL.LOSS_FUNC kldiv+egonce \
@@ -148,7 +148,7 @@ Note: You need to replace `TRAIN.CHECKPOINT_FILE_PATH` with your local path to p
 The checkpoints are saved in `./out` directory.
 
 
-### Evaluation
+## Evaluation
 
 Run evaluation on Ego4D dataset.
 

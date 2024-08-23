@@ -22,7 +22,6 @@ from . import video_container as container
 from .build import DATASET_REGISTRY
 from .random_erasing import RandomErasing
 from .transform import create_random_augment
-from .spec_augment import combined_transforms
 
 logger = logging.get_logger(__name__)
 
@@ -94,9 +93,9 @@ class Aria_av_gaze(torch.utils.data.Dataset):
         #     self.cfg.DATA.PATH_TO_DATA_DIR, "{}.csv".format(self.mode)
         # )
         if self.mode == 'train':
-            path_to_file = 'preprocessing/train_aria_gaze.csv'
+            path_to_file = 'data/train_aria_gaze.csv'
         elif self.mode == 'val' or self.mode == 'test':
-            path_to_file = 'preprocessing/test_aria_gaze.csv'
+            path_to_file = 'data/test_aria_gaze.csv'
         else:
             raise ValueError(f"Don't support mode {self.mode}.")
 
@@ -107,8 +106,6 @@ class Aria_av_gaze(torch.utils.data.Dataset):
         self._labels = dict()
         self._spatial_temporal_idx = []
 
-        if not os.path.exists(self.cfg.DATA.PATH_PREFIX):
-            self.cfg.DATA.PATH_PREFIX = '/srv/rehg-lab/flash6/blai38/Datasets/Aria/clips'
         with pathmgr.open(path_to_file, "r") as f:
             paths = [item for item in f.read().splitlines()]
             for clip_idx, path in enumerate(paths):
@@ -178,9 +175,6 @@ class Aria_av_gaze(torch.utils.data.Dataset):
             spatial_sample_index = ((self._spatial_temporal_idx[index] % self.cfg.TEST.NUM_SPATIAL_CROPS) if self.cfg.TEST.NUM_SPATIAL_CROPS > 1 else 1)  # = 1
             min_scale, max_scale, crop_size = (
                 [self.cfg.DATA.TEST_CROP_SIZE] * 3
-                # Don't understand why different scale is used when NUM_SPATIAL_CROPS>1
-                # if self.cfg.TEST.NUM_SPATIAL_CROPS > 1
-                # else [self.cfg.DATA.TRAIN_JITTER_SCALES[0]] * 2 + [self.cfg.DATA.TEST_CROP_SIZE]
             )  # = (256, 256, 256)
             # The testing is deterministic and no jitter should be performed.
             # min_scale, max_scale, and crop_size are expect to be the same.
@@ -227,25 +221,13 @@ class Aria_av_gaze(torch.utils.data.Dataset):
                 get_frame_idx=True,
             )
 
-            # if self._path_to_audios[index].split('/')[-2] not in ['0d271871-c8ba-4249-9434-d39ce0060e58', '7d8b9b9f-7781-4357-a695-c88f7c7f7591']:
             audio = np.load(self._path_to_audios[index])
             audio_idx = (frames_idx / frame_length) * audio.shape[1]
             audio_idx = torch.round(audio_idx).int()
             audio_idx = torch.clip(audio_idx, 128, audio.shape[1]-1-128)
             audio_frames = np.stack([audio[:, idx-128:idx+128] for idx in audio_idx], axis=0)
             audio_frames = audio_frames[np.newaxis, ...]
-            # else:  # some videos don't have audio stream
-            #     audio_frames = np.full(shape=(1, frames.shape[0], 256, 256), fill_value=-13, dtype=np.float32)
             audio_frames = torch.as_tensor(audio_frames)
-
-            # add spectrogram augmentation
-            # spectrograms = list()
-            # for idx in range(audio_frames.size(1)):
-            #     spec = audio_frames[0, idx:idx+1, :, :]
-            #     spec = combined_transforms(spec)
-            #     spectrograms.append(spec)
-            # audio_frames = torch.cat(spectrograms, dim=0)
-            # audio_frames = audio_frames.unsqueeze(0)
 
             # Get gaze label
             video_path = self._path_to_videos[index]
@@ -305,7 +287,6 @@ class Aria_av_gaze(torch.utils.data.Dataset):
 
             frames = utils.pack_pathway_output(self.cfg, frames)
 
-            # label_hm = np.zeros(shape=(frames[0].size(1), frames[0].size(2), frames[0].size(3)))
             label_hm = np.zeros(shape=(frames[0].size(1), frames[0].size(2) // 4, frames[0].size(3) // 4))
             for i in range(label_hm.shape[0]):
                 self._get_gaussian_map(label_hm[i, :, :], center=(label[i, 0] * label_hm.shape[2], label[i, 1] * label_hm.shape[1]),

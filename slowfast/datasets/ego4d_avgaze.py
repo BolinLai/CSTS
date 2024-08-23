@@ -22,7 +22,6 @@ from . import video_container as container
 from .build import DATASET_REGISTRY
 from .random_erasing import RandomErasing
 from .transform import create_random_augment
-from .spec_augment import combined_transforms
 
 logger = logging.get_logger(__name__)
 
@@ -94,9 +93,9 @@ class Ego4d_av_gaze(torch.utils.data.Dataset):
         #     self.cfg.DATA.PATH_TO_DATA_DIR, "{}.csv".format(self.mode)
         # )
         if self.mode == 'train':
-            path_to_file = 'preprocessing/train_ego4d_gaze.csv'
+            path_to_file = 'data/train_ego4d_gaze.csv'
         elif self.mode == 'val' or self.mode == 'test':
-            path_to_file = 'preprocessing/test_ego4d_gaze.csv'
+            path_to_file = 'data/test_ego4d_gaze.csv'
         else:
             raise ValueError(f"Don't support mode {self.mode}.")
 
@@ -108,12 +107,6 @@ class Ego4d_av_gaze(torch.utils.data.Dataset):
         self._labels = dict()
         self._spatial_temporal_idx = []
 
-        if os.path.exists(self.cfg.DATA.PATH_PREFIX):
-            pass
-        elif os.path.exists('/data/Ego4D/v1/clips.gaze'):
-            self.cfg.DATA.PATH_PREFIX = '/data/Ego4D/v1/clips.gaze'
-        else:
-            self.cfg.DATA.PATH_PREFIX = '/srv/rehg-lab/flash6/blai38/Datasets/Ego4D/clips.gaze'
         with pathmgr.open(path_to_file, "r") as f:
             paths = [item for item in f.read().splitlines()]
             for clip_idx, path in enumerate(paths):
@@ -205,9 +198,6 @@ class Ego4d_av_gaze(torch.utils.data.Dataset):
                 spatial_sample_index = 1
             min_scale, max_scale, crop_size = (
                 [self.cfg.DATA.TEST_CROP_SIZE] * 3
-                # Don't understand why different scale is used when NUM_SPATIAL_CROPS>1
-                # if self.cfg.TEST.NUM_SPATIAL_CROPS > 1
-                # else [self.cfg.DATA.TRAIN_JITTER_SCALES[0]] * 2 + [self.cfg.DATA.TEST_CROP_SIZE]
             )  # = (256, 256, 256)
             # The testing is deterministic and no jitter should be performed.
             # min_scale, max_scale, and crop_size are expect to be the same.
@@ -256,25 +246,13 @@ class Ego4d_av_gaze(torch.utils.data.Dataset):
                     get_frame_idx=True
                 )
 
-                # if self._path_to_audios[index].split('/')[-2] not in ['0d271871-c8ba-4249-9434-d39ce0060e58', '7d8b9b9f-7781-4357-a695-c88f7c7f7591']:
                 audio = np.load(self._path_to_audios[index])
                 audio_idx = (frames_idx / frame_length) * audio.shape[1]
                 audio_idx = torch.round(audio_idx).int()
                 audio_idx = torch.clip(audio_idx, 128, audio.shape[1]-1-128)
                 audio_frames = np.stack([audio[:, idx-128:idx+128] for idx in audio_idx], axis=0)
                 audio_frames = audio_frames[np.newaxis, ...]
-                # else:  # some videos don't have audio stream
-                #     audio_frames = np.full(shape=(1, frames.shape[0], 256, 256), fill_value=-13, dtype=np.float32)
                 audio_frames = torch.as_tensor(audio_frames)
-
-                # add spectrogram augmentation
-                # spectrograms = list()
-                # for idx in range(audio_frames.size(1)):
-                #     spec = audio_frames[0, idx:idx+1, :, :]
-                #     spec = combined_transforms(spec)
-                #     spectrograms.append(spec)
-                # audio_frames = torch.cat(spectrograms, dim=0)
-                # audio_frames = audio_frames.unsqueeze(0)
 
                 # Get gaze label on the last frame
                 video_path = self._path_to_videos[index]
@@ -282,15 +260,11 @@ class Ego4d_av_gaze(torch.utils.data.Dataset):
                 clip_tstart, clip_tend = clip_name[:-4].split('_')[-2:]  # get start and end time
                 clip_tstart, clip_tend = int(clip_tstart[1:]), int(clip_tend[1:])  # remove 't'
                 clip_fstart, clip_fend = clip_tstart * self.cfg.DATA.TARGET_FPS, clip_tend * self.cfg.DATA.TARGET_FPS
-                # frames_global_idx = frames_idx.numpy() + clip_fstart - 1  # should not -1 here
                 frames_global_idx = frames_idx.numpy() + clip_fstart
                 if self.mode not in ['test'] and frames_global_idx[-1] >= self._labels[video_name].shape[0]:  # Some frames don't have labels. Try to use another one
-                    # logger.info('No annotations:', video_name, clip_name)
                     index = random.randint(0, len(self._path_to_videos) - 1)
                     continue
                 label = self._labels[video_name][frames_global_idx, :]
-                # label[:, 0][np.where(label[:, 2] == 0)] = 0.5  # In untracked frame, set gaze at the center initially. It will be covered by a uniform distribution.
-                # label[:, 1][np.where(label[:, 2] == 0)] = 0.5
 
                 # If decoding failed (wrong format, video is too short, and etc),
                 # select another video.
@@ -329,15 +303,12 @@ class Ego4d_av_gaze(torch.utils.data.Dataset):
                 frames = frames[frames_idx, ...]
 
                 # Load audio signal
-                # if video_path.split('/')[-2] not in ['0d271871-c8ba-4249-9434-d39ce0060e58', '7d8b9b9f-7781-4357-a695-c88f7c7f7591']:
                 audio = np.load(video_path.replace('clips.gaze', 'clips.gaze.audio_stft').replace('.mp4', '.npy'))
                 audio_idx = (frames_idx / frame_length) * audio.shape[1]
                 audio_idx = torch.round(audio_idx).int()
                 audio_idx = torch.clip(audio_idx, 128, audio.shape[1]-1-128)
                 audio_frames = np.stack([audio[:, idx-128:idx+128] for idx in audio_idx], axis=0)
                 audio_frames = audio_frames[np.newaxis, ...]
-                # else:  # some videos don't have audio stream
-                #     audio_frames = np.full(shape=(1, frames.shape[0], 256, 256), fill_value=-13, dtype=np.float32)
                 audio_frames = torch.as_tensor(audio_frames)
 
                 # Get gaze label on the last frame
@@ -345,15 +316,11 @@ class Ego4d_av_gaze(torch.utils.data.Dataset):
                 clip_tstart, clip_tend = clip_name[:-4].split('_')[-2:]  # get start and end time
                 clip_tstart, clip_tend = int(clip_tstart[1:]), int(clip_tend[1:])  # remove 't'
                 clip_fstart, clip_fend = clip_tstart * self.cfg.DATA.TARGET_FPS, clip_tend * self.cfg.DATA.TARGET_FPS
-                # frames_global_idx = frames_idx.numpy() + clip_fstart - 1  # should not -1 here
                 frames_global_idx = frames_idx.numpy() + clip_fstart
                 if self.mode not in ['test'] and frames_global_idx[-1] >= self._labels[video_name].shape[0]:  # Some frames don't have labels. Try to use another one
-                    # logger.info('No annotations:', video_name, clip_name)
                     index = random.randint(0, len(self._full_frame_inputs) - 1)
                     continue
                 label = self._labels[video_name][frames_global_idx, :]
-                # label[:, 0][np.where(label[:, 2] == 0)] = 0.5  # In untracked frame, set gaze at the center initially. It will be covered by a uniform distribution.
-                # label[:, 1][np.where(label[:, 2] == 0)] = 0.5
 
                 # If decoding failed (wrong format, video is too short, and etc),
                 # select another video.
@@ -400,12 +367,8 @@ class Ego4d_av_gaze(torch.utils.data.Dataset):
 
             frames = utils.pack_pathway_output(self.cfg, frames)
 
-            # label_hm = np.zeros(shape=(frames[0].size(1), frames[0].size(2), frames[0].size(3)))
             label_hm = np.zeros(shape=(frames[0].size(1), frames[0].size(2) // 4, frames[0].size(3) // 4))
             for i in range(label_hm.shape[0]):
-                # if label[i, 2] == 0:  # if gaze is untracked, use uniform distribution
-                #     label_hm[i, :, :] = label_hm[i, :, :] + 1 / (label_hm.shape[1] * label_hm.shape[2])
-                # else:
                 self._get_gaussian_map(label_hm[i, :, :], center=(label[i, 0] * label_hm.shape[2], label[i, 1] * label_hm.shape[1]),
                                        kernel_size=self.cfg.DATA.GAUSSIAN_KERNEL, sigma=-1)  # sigma=-1 means use default sigma
                 d_sum = label_hm[i, :, :].sum()

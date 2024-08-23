@@ -160,9 +160,6 @@ _C.TEST.NUM_ENSEMBLE_VIEWS = 10
 # prediction results.
 _C.TEST.NUM_SPATIAL_CROPS = 3
 
-# Test on all frames (used for gaze estimation)
-_C.TEST.FULL_FRAME_TEST = True
-
 # Checkpoint types include `caffe2` or `pytorch`.
 _C.TEST.CHECKPOINT_TYPE = "pytorch"
 # Path to saving prediction results file.

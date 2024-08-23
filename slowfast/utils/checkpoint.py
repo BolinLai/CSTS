@@ -334,66 +334,6 @@ def load_checkpoint(
                     pre_train_dict_match[k] = up_v
                     not_load_layers.remove(k)
 
-            # For MotionFormer only, interpolate position encoding
-            interpolate_param = ['pos_embed', 'temp_embed']
-            for k in interpolate_param:
-                if k in not_load_layers and k in model_dict and k in pre_train_dict:
-                    v = pre_train_dict[k] if k != 'pos_embed' else pre_train_dict[k][:, 1:, :]
-                    t = model_dict[k].size()
-                    up_v = F.interpolate(v.unsqueeze(0), (t[1], t[2]), mode='bilinear').squeeze(0)  # interpolate see the first 2 dimension as batch and channel
-                    pre_train_dict_match[k] = up_v
-                    not_load_layers.remove(k)
-                    if k == 'pos_embed' and 'pos_embed_class' in not_load_layers:
-                        pre_train_dict_match['pos_embed_class'] = pre_train_dict[k][:, 0:1, :]
-                        not_load_layers.remove('pos_embed_class')
-
-            # For global token embedding (deprecated in final version)
-            global_embed_param = ['global_embed.proj.weight', 'global_embed.proj.bias']
-                                  # 'global_embed.proj_1.weight', 'global_embed.proj_1.bias']
-            for k in global_embed_param:
-                if k in not_load_layers and k in model_dict:
-                    if 'proj_1' in k:
-                        load_name = k.replace('global_embed.proj_1', 'patch_embed.proj')
-                    else:
-                        load_name = k.replace('global_embed', 'patch_embed')
-                    if pre_train_dict[load_name].size() == model_dict[k].size():
-                        pre_train_dict_match[k] = pre_train_dict[load_name]
-                        not_load_layers.remove(k)
-
-            # Initialize the audio branch with the pretrained video branch parameters (deprecated because of drop in performance)
-            # for k in not_load_layers.copy():  # must use .copy() here because some elements are removed in the loop
-            #     # For audio branch initialization
-            #     if 'audio' in k:
-            #         load_name = k.replace('_audio', '')
-            #         if load_name in ['blocks.1.mlp.fc2.weight', 'blocks.1.mlp.fc2.bias',
-            #                          'blocks.1.proj.weight', 'blocks.1.proj.bias']:
-            #             load_name = load_name.replace('blocks.1', 'blocks.2')
-            #         elif load_name in ['blocks.2.mlp.fc2.weight', 'blocks.2.mlp.fc2.bias',
-            #                            'blocks.2.proj.weight', 'blocks.2.proj.bias']:
-            #             load_name = load_name.replace('blocks.2', 'blocks.13')
-            #
-            #         elif 'blocks.2' in load_name:
-            #             load_name = load_name.replace('blocks.2', 'blocks.3')
-            #         elif 'blocks.3' in load_name:
-            #             load_name = load_name.replace('blocks.3', 'blocks.14')
-            #
-            #         if load_name in ['pos_embed_spatial', 'pos_embed_temporal']:  # these parameters are interpolated
-            #             pre_train_dict_match[k] = pre_train_dict_match[load_name].clone()  # .clone() is important
-            #             not_load_layers.remove(k)
-            #         elif load_name == 'patch_embed.proj.weight':
-            #             pre_train_dict_match[k] = pre_train_dict[load_name].mean(dim=1, keepdim=True)
-            #             not_load_layers.remove(k)
-            #         elif load_name in pre_train_dict.keys() and pre_train_dict[load_name].size() == model_dict[k].size():
-            #             pre_train_dict_match[k] = pre_train_dict[load_name].clone()
-            #             not_load_layers.remove(k)
-            #
-            #     # For audio-visual fusion initialization
-            #     if 'av_fusion' in k:
-            #         load_name = k.replace('av_fusion', 'blocks.15')
-            #         if load_name in pre_train_dict.keys() and pre_train_dict[load_name].size() == model_dict[k].size():
-            #             pre_train_dict_match[k] = pre_train_dict[load_name].clone()
-            #             not_load_layers.remove(k)
-
             # Log weights that are not loaded with the pre-trained weights.
             if not_load_layers:
                 for k in not_load_layers:
@@ -509,21 +449,6 @@ def load_video_and_audio_checkpoints(
         if k in model_dict and (k in video_pre_train_dict or k in audio_pre_train_dict):
             v = video_pre_train_dict[k] if k in interpolate_video_param else audio_pre_train_dict[k]
             t = model_dict[k].size()
-            # if k == 'pos_embed_spatial':
-            #     spatial_v = v.reshape((v.size(0), int(math.sqrt(v.size(1))), int(math.sqrt(v.size(1))), v.size(2)))
-            #     spatial_v = spatial_v.permute(0, 3, 1, 2)
-            #     up_v = F.interpolate(spatial_v, (int(math.sqrt(t[1])), int(math.sqrt(t[1]))), mode='bilinear')
-            #     up_v = up_v.permute(0, 2, 3, 1)
-            #     up_v = up_v.reshape((up_v.size(0), up_v.size(1) * up_v.size(2), up_v.size(3)))
-            # elif k == 'pos_embed_spatial_audio':
-            #     spatial_v = v.reshape((v.size(0), int(math.sqrt(v.size(1))), int(math.sqrt(v.size(1))), v.size(2)))  # for aligned setting
-            #     # spatial_v = v.reshape((v.size(0), 128//4, 512//4, v.size(2)))  # for original setting
-            #     spatial_v = spatial_v.permute(0, 3, 1, 2)
-            #     up_v = F.interpolate(spatial_v, (int(math.sqrt(t[1])), int(math.sqrt(t[1]))), mode='bilinear')
-            #     up_v = up_v.permute(0, 2, 3, 1)
-            #     up_v = up_v.reshape((up_v.size(0), up_v.size(1) * up_v.size(2), up_v.size(3)))
-            # else:
-            #     up_v = F.interpolate(v.unsqueeze(0), (t[1], t[2]), mode='bilinear').squeeze(0)  # interpolate see the first 2 dimension as batch and channel
             up_v = F.interpolate(v.unsqueeze(0), (t[1], t[2]), mode='bilinear').squeeze(0)  # interpolate see the first 2 dimension as batch and channel
             pre_train_dict_match[k] = up_v
             if k in not_load_layers:

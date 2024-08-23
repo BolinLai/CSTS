@@ -162,13 +162,8 @@ class Ego4d_av_gaze_forecast(torch.utils.data.Dataset):
             # spatial_sample_index is in [0, 1, 2]. Corresponding to left,
             # center, or right if width is larger than height, and top, middle,
             # or bottom if height is larger than width.
-            if self.cfg.TEST.FULL_FRAME_TEST is False:  # actually spatial_sample_index=1 regardless of FULL_FRAME_TEST
-                spatial_sample_index = ((self._spatial_temporal_idx[index] % self.cfg.TEST.NUM_SPATIAL_CROPS) if self.cfg.TEST.NUM_SPATIAL_CROPS > 1 else 1)  # = 1
-            else:
-                spatial_sample_index = 1
-            min_scale, max_scale, crop_size = (
-                [self.cfg.DATA.TEST_CROP_SIZE] * 3
-            )  # = (256, 256, 256)
+            spatial_sample_index = ((self._spatial_temporal_idx[index] % self.cfg.TEST.NUM_SPATIAL_CROPS) if self.cfg.TEST.NUM_SPATIAL_CROPS > 1 else 1)  # = 1
+            min_scale, max_scale, crop_size = ([self.cfg.DATA.TEST_CROP_SIZE] * 3)  # = (256, 256, 256)
             # The testing is deterministic and no jitter should be performed.
             # min_scale, max_scale, and crop_size are expect to be the same.
             assert len({min_scale, max_scale}) == 1
@@ -431,7 +426,7 @@ class Ego4d_av_gaze_forecast(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return self.num_videos if self.cfg.TEST.FULL_FRAME_TEST is False else self.num_full_frame_inputs
+        return self.num_videos
 
     @property
     def num_videos(self):
@@ -440,7 +435,3 @@ class Ego4d_av_gaze_forecast(torch.utils.data.Dataset):
             (int): the number of videos in the dataset.
         """
         return len(self._path_to_videos)
-
-    @property
-    def num_full_frame_inputs(self):
-        return len(self._full_frame_inputs)

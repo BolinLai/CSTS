@@ -5,23 +5,25 @@
 ### [Project Page](https://bolinlai.github.io/CSTS-EgoGazeAnticipation/) | [Paper](https://arxiv.org/pdf/2305.03907)
 
 
-
-### TODO:
-
-- [ ] Codes
-- [ ] Checkpoints
-- [x] Data Split
-- [ ] Update README (in progress)
-
 ## Contents
 - [Problem Definition](#problem-definition)
 - [Approach](#approach)
 - [Setup](#setup)
 - [Datasets](#dataset)
+- [Model Weights](#model-weights)
 - [Training](#training)
 - [Evaluation](#evaluation)
 - [BibTeX](#bibtex)
-- [Acknowledge](#acknowledgement)
+- [Acknowledgement](#acknowledgement)
+
+
+### TODO:
+
+- [x] Codes
+- [ ] Checkpoints
+- [x] Data Split
+- [ ] Update README (in progress)
+- [ ] Add codes for gaze estimation
 
 
 ## Problem Definition
@@ -45,6 +47,8 @@ python setup.py build develop
 ```
 
 ## Dataset
+
+We train our model using a subset of Ego4D and Aria Everyday Activities. The data split is released in `data/*.csv`.
 
 ### Ego4D
 
@@ -105,6 +109,11 @@ TODO
 (The Aria dataset is in a very different format than it was when we started our work. We need more time to update our codes. Thank you for your patience.)
 
 
+## Model Weights
+
+TODO
+
+
 ## Training
 
 We use MViT as our backbone. The Kinetics-400 pre-trained model is released [here](https://github.com/facebookresearch/SlowFast/blob/main/MODEL_ZOO.md) (i.e., Kinetics/MVIT_B_16x4_CONV). We find this checkpoint is no longer available on that page. We thus provide the pretrained weights via this [link](https://drive.google.com/file/d/1cZjY9jK7urPxvZfYumIVVVvdXLmVsiJk/view?usp=drive_link).
@@ -114,13 +123,13 @@ Train on Ego4D dataset.
 ```shell
 CUDA_VISIBLE_DEVICES=0,1 python tools/run_net.py \
     --init_method tcp://localhost:9880 \
-    --cfg configs/Ego4d/CSTS_Ego4D_Gaze_Forecast.yaml \
+    --cfg configs/Ego4D/CSTS_Ego4D_Gaze_Forecast.yaml \
     TRAIN.BATCH_SIZE 8 \
-    NUM_GPUS 2 \
-    TRAIN.CHECKPOINT_FILE_PATH /path/to/pretrained/K400_MVIT_B_16x4_CONV.pyth \
     TEST.ENABLE False \
-    OUTPUT_DIR out/csts_ego4d \
+    NUM_GPUS 2 \
     DATA.PATH_PREFIX /path/to/Ego4D/clips.gaze \
+    TRAIN.CHECKPOINT_FILE_PATH /path/to/pretrained/K400_MVIT_B_16x4_CONV.pyth \
+    OUTPUT_DIR out/csts_ego4d \
     MODEL.LOSS_FUNC kldiv+egonce \
     MODEL.LOSS_ALPHA 0.05 \
     RNG_SEED 21
@@ -133,19 +142,17 @@ CUDA_VISIBLE_DEVICES=0,1 python tools/run_net.py \
     --init_method tcp://localhost:9880 \
     --cfg configs/Aria/CSTS_Aria_Gaze_Forecast.yaml \
     TRAIN.BATCH_SIZE 8 \
-    NUM_GPUS 2 \
-    TRAIN.CHECKPOINT_FILE_PATH /path/to/pretrained/K400_MVIT_B_16x4_CONV.pyth \
     TEST.ENABLE False \
-    OUTPUT_DIR out/csts_aria \
+    NUM_GPUS 2 \
     DATA.PATH_PREFIX /path/to/Aria/clips \
+    TRAIN.CHECKPOINT_FILE_PATH /path/to/pretrained/K400_MVIT_B_16x4_CONV.pyth \
+    OUTPUT_DIR out/csts_aria \
     MODEL.LOSS_FUNC kldiv+egonce \
     MODEL.LOSS_ALPHA 0.05 \
     RNG_SEED 21
 ```
 
-Note: You need to replace `TRAIN.CHECKPOINT_FILE_PATH` with your local path to pretrained MViT checkpoint, and replace `DATA.PATH_PREFIX` with your local path to video clips.
-
-The checkpoints are saved in `./out` directory.
+Note: You need to replace `DATA.PATH_PREFIX` with your local path to video clips, and replace `TRAIN.CHECKPOINT_FILE_PATH` with your local path to pretrained MViT checkpoint. You can also fix `DATA.PATH_PREFIX` in configuration files to shorten the command. The checkpoints after each epoch will be saved in `./out` directory.
 
 
 ## Evaluation
@@ -154,12 +161,13 @@ Run evaluation on Ego4D dataset.
 
 ```shell
 CUDA_VISIBLE_DEVICES=0 python tools/run_net.py \
-    --cfg configs/Ego4d/CSTS_Ego4D_Gaze_Forecast.yaml \
+    --cfg configs/Ego4D/CSTS_Ego4D_Gaze_Forecast.yaml \
     TRAIN.ENABLE False \
     TEST.BATCH_SIZE 24 \
     NUM_GPUS 1 \
-    OUTPUT_DIR out/csts_ego4d/checkpoints/test_epoch5 \
+    DATA.PATH_PREFIX /path/to/Ego4D/clips.gaze \
     TEST.CHECKPOINT_FILE_PATH out/csts_ego4d/checkpoints/checkpoint_epoch_00005.pyth \
+    OUTPUT_DIR out/csts_ego4d/test
     [DATA_LOADER.RETURN_TARGET_FRAME True]
 ```
 
@@ -171,9 +179,29 @@ CUDA_VISIBLE_DEVICES=0 python tools/run_net.py \
     TRAIN.ENABLE False \
     TEST.BATCH_SIZE 24 \
     NUM_GPUS 1 \
-    OUTPUT_DIR out/csts_aria/checkpoints/test_epoch5 \
+    DATA.PATH_PREFIX /path/to/Aria/clips \
     TEST.CHECKPOINT_FILE_PATH out/csts_aria/checkpoints/checkpoint_epoch_00005.pyth \
+    OUTPUT_DIR out/csts_aria/test
     [DATA_LOADER.RETURN_TARGET_FRAME True]
 ```
 
-Note: You need to replace `OUTPUT_DIR` with the path of saving evaluation logs, and replace `TEST.CHECKPOINT_FILE_PATH` with the path of the checkpoint that you want to evaluate.
+Note: You need to replace `DATA.PATH_PREFIX` with your local path to video clips, replace `TEST.CHECKPOINT_FILE_PATH` with the path of the checkpoint that you want to evaluate, and replace `OUTPUT_DIR` with the path of saving evaluation logs.
+
+You may find it's hard to fully reproduce the results if you train the model again, even though the seed is already fixed. We also observed this issue but failed to fix it. It may be an internal bug in the slowfast codebase, which we build our own model on. However, the difference should be small, and you are still able to get the same number as reported in the paper by running inference with our released weights.
+
+
+## BibTeX
+
+```
+@article{lai2023listen,
+        title={Listen to look into the future: Audio-visual egocentric gaze anticipation},
+        author={Lai, Bolin and Ryan, Fiona and Jia, Wenqi and Liu, Miao and Rehg, James M},
+        journal={arXiv preprint arXiv:2305.03907},
+        year={2023}
+      }
+```
+
+
+## Acknowledgement
+
+We develop our model based on [SlowFast](https://github.com/facebookresearch/SlowFast). We appreciate the contributors of that excellent codebase.

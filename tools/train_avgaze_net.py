@@ -16,7 +16,7 @@ import slowfast.utils.misc as misc
 import slowfast.visualization.tensorboard_vis as tb
 from slowfast.datasets import loader
 from slowfast.models import build_model
-from slowfast.utils.meters import EpochTimer, TrainGazeMeter, ValGazeMeter, TrainMeter, ValMeter
+from slowfast.utils.meters import EpochTimer, TrainGazeMeter, ValGazeMeter
 from slowfast.utils.utils import frame_softmax, sim_matrix
 
 logger = logging.get_logger(__name__)
@@ -38,7 +38,7 @@ def train_epoch(
         train_loader (loader): video training loader.
         model (model): the video model to train.
         optimizer (optim): the optimizer to perform optimization on the model's parameters.
-        train_meter (TrainMeter): training meters to log the training performance.
+        train_meter (TrainGazeMeter): training meters to log the training performance.
         cur_epoch (int): current epoch of training.
         cfg (CfgNode): configs. Details can be found in slowfast/config/defaults.py
         writer (TensorboardWriter, optional): TensorboardWriter object to writer Tensorboard log.
@@ -126,11 +126,9 @@ def train_epoch(
         preds_rescale = (preds_rescale - preds_rescale.min(dim=-1, keepdim=True)[0]) / (preds_rescale.max(dim=-1, keepdim=True)[0] - preds_rescale.min(dim=-1, keepdim=True)[0] + 1e-6)
         preds_rescale = preds_rescale.view(preds.size())
         f1, recall, precision, threshold = metrics.adaptive_f1(preds_rescale, labels_hm, labels, dataset=cfg.TRAIN.DATASET)
-        iou = metrics.gaze_iou(preds_rescale, labels_hm, threshold=threshold)
-        auc = metrics.auc(preds_rescale, labels_hm, labels, dataset=cfg.TRAIN.DATASET)
 
         # Update and log stats.
-        train_meter.update_stats(iou, f1, recall, precision, auc, threshold, loss, lr, mb_size=inputs[0].size(0) * max(cfg.NUM_GPUS, 1))  # If running  on CPU (cfg.NUM_GPUS == 0), use 1 to represent 1 CPU.
+        train_meter.update_stats(f1, recall, precision, threshold, loss, lr, mb_size=inputs[0].size(0) * max(cfg.NUM_GPUS, 1))  # If running  on CPU (cfg.NUM_GPUS == 0), use 1 to represent 1 CPU.
 
         # write to tensorboard format if available.
         if writer is not None:
@@ -138,11 +136,9 @@ def train_epoch(
                 {
                     "Train/loss": loss,
                     "Train/lr": lr,
-                    "Train/IoU": iou,
                     "Train/F1": f1,
                     "Train/Recall": recall,
                     "Train/Precision": precision,
-                    "Train/AUC": auc
                 },
                 global_step=data_size * cur_epoch + cur_iter,
             )
@@ -166,7 +162,7 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer=None):
     Args:
         val_loader (loader): data loader to provide validation data.
         model (model): model to evaluate the performance.
-        val_meter (ValMeter): meter instance to record and calculate the metrics.
+        val_meter (ValGazeMeter): meter instance to record and calculate the metrics.
         cur_epoch (int): number of the current epoch of training.
         cfg (CfgNode): configs. Details can be found in slowfast/config/defaults.py
         writer (TensorboardWriter, optional): TensorboardWriter object to writer Tensorboard log.
@@ -202,21 +198,17 @@ def eval_epoch(val_loader, model, val_meter, cur_epoch, cfg, writer=None):
         preds_rescale = (preds_rescale - preds_rescale.min(dim=-1, keepdim=True)[0]) / (preds_rescale.max(dim=-1, keepdim=True)[0] - preds_rescale.min(dim=-1, keepdim=True)[0] + 1e-6)
         preds_rescale = preds_rescale.view(preds.size())
         f1, recall, precision, threshold = metrics.adaptive_f1(preds_rescale, labels_hm, labels, dataset=cfg.TRAIN.DATASET)
-        iou = metrics.gaze_iou(preds_rescale, labels_hm, threshold=threshold)
-        auc = metrics.auc(preds_rescale, labels_hm, labels, dataset=cfg.TRAIN.DATASET)
 
         val_meter.iter_toc()
         # Update and log stats.
-        val_meter.update_stats(iou, f1, recall, precision, auc, labels, threshold)  # If running  on CPU (cfg.NUM_GPUS == 0), use 1 to represent 1 CPU.
+        val_meter.update_stats(f1, recall, precision, labels, threshold)  # If running  on CPU (cfg.NUM_GPUS == 0), use 1 to represent 1 CPU.
 
         # write to tensorboard format if available.
         if writer is not None:
             writer.add_scalars({
-                "Val/IoU": iou,
                 "Val/F1": f1,
                 "Val/Recall": recall,
                 "Val/Precision": precision,
-                "Val/AUC": auc
             }, global_step=len(val_loader) * cur_epoch + cur_iter)
 
         val_meter.log_iter_stats(cur_epoch, cur_iter)

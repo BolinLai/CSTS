@@ -11,9 +11,9 @@ import slowfast.utils.misc as misc
 import slowfast.utils.metrics as metrics
 from slowfast.datasets import loader
 from slowfast.models import build_model
-from slowfast.utils.meters import TestMeter, TestGazeMeter
+from slowfast.utils.meters import TestGazeMeter
 from slowfast.utils.utils import frame_softmax
-from slowfast.visualization.visualization import vis_inference, vis_video_forecasting, vis_av_st_fusion
+# from slowfast.visualization.visualization import vis_inference, vis_video_forecasting, vis_av_st_fusion
 
 logger = logging.get_logger(__name__)
 
@@ -69,8 +69,6 @@ def perform_test(test_loader, model, test_meter, cfg, writer=None):
         preds_rescale = (preds_rescale - preds_rescale.min(dim=-1, keepdim=True)[0]) / (preds_rescale.max(dim=-1, keepdim=True)[0] - preds_rescale.min(dim=-1, keepdim=True)[0] + 1e-6)
         preds_rescale = preds_rescale.view(preds.size())
         f1, recall, precision, threshold = metrics.adaptive_f1(preds_rescale, labels_hm, labels, dataset=cfg.TEST.DATASET)
-        iou = metrics.gaze_iou(preds_rescale, labels_hm, threshold=threshold)
-        auc = metrics.auc(preds_rescale, labels_hm, labels, dataset=cfg.TEST.DATASET)
 
         # Visualization
         # gaze forecast
@@ -86,7 +84,7 @@ def perform_test(test_loader, model, test_meter, cfg, writer=None):
         test_meter.iter_toc()
 
         # Update and log stats.
-        test_meter.update_stats(iou, f1, recall, precision, auc, preds=preds_rescale, labels_hm=labels_hm, labels=labels)  # If running  on CPU (cfg.NUM_GPUS == 0), use 1 to represent 1 CPU.
+        test_meter.update_stats(f1, recall, precision, preds=preds_rescale, labels_hm=labels_hm, labels=labels)  # If running  on CPU (cfg.NUM_GPUS == 0), use 1 to represent 1 CPU.
         test_meter.log_iter_stats(cur_iter)
 
         test_meter.iter_tic()

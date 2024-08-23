@@ -8,19 +8,15 @@ TRAIN:
   CHECKPOINT_EPOCH_RESET: True  # reset epoch and optimizer when finetuning
 DATA:
   PATH_PREFIX: '/data/blai38/Ego4D/clips.gaze'
-#  DECODING_BACKEND: torchvision  # comment this line to use pyav as decoder
   NUM_FRAMES: 8
   SAMPLING_RATE: 8
-  TRAIN_JITTER_SCALES: [256, 320]
-#  TRAIN_JITTER_SCALES: [256, 288]  # can result in better result
-  TRAIN_CROP_SIZE: 256  # from 224
-  TEST_CROP_SIZE: 256  # from 224
+  TRAIN_JITTER_SCALES: [256, 288]
+  TRAIN_CROP_SIZE: 256
+  TEST_CROP_SIZE: 256
   INPUT_CHANNEL_NUM: [3]
-#  TRAIN_JITTER_SCALES_RELATIVE: [0.08, 1.0]
-#  TRAIN_JITTER_ASPECT_RELATIVE: [0.75, 1.3333]
   TARGET_FPS: 30
-  USE_OFFSET_SAMPLING: False  # modified from True
-  GAUSSIAN_KERNEL: 19
+  USE_OFFSET_SAMPLING: False
+  GAUSSIAN_KERNEL: 19  # Metrics are sensitive to kernel size. Fix the kernel size for a fair comparison
 MVIT:
   ZERO_DECAY_POS_CLS: False
   SEP_POS_EMBED: True
@@ -43,24 +39,6 @@ MVIT:
   POOL_KV_STRIDE_ADAPTIVE: [1, 8, 8]
   POOL_Q_STRIDE: [[1, 1, 2, 2], [3, 1, 2, 2], [14, 1, 2, 2]]
   DROPOUT_RATE: 0.0
-#  GLOBAL_EMBED_ON: True  # For rebuttal only
-#AUG:
-#  NUM_SAMPLE: 2
-#  ENABLE: True
-#  COLOR_JITTER: 0.4
-#  AA_TYPE: rand-m7-n4-mstd0.5-inc1
-#  INTERPOLATION: bicubic
-#  RE_PROB: 0.25
-#  RE_MODE: pixel
-#  RE_COUNT: 1
-#  RE_SPLIT: False
-#MIXUP:
-#  ENABLE: True
-#  ALPHA: 0.8
-#  CUTMIX_ALPHA: 1.0
-#  PROB: 1.0
-#  SWITCH_PROB: 0.5
-#  LABEL_SMOOTH_VALUE: 0.1
 BN:
   USE_PRECISE_STATS: False  # default False for MViT
   NUM_BATCHES_PRECISE: 200
@@ -71,26 +49,25 @@ SOLVER:
   BASE_LR: 0.0001
   COSINE_AFTER_WARMUP: True
   COSINE_END_LR: 1e-6
-  WARMUP_START_LR: 1e-6  # modified from 1e-6
-  WARMUP_EPOCHS: 0.0  # modified from 30.0
+  WARMUP_START_LR: 1e-6
+  WARMUP_EPOCHS: 0.0
   LR_POLICY: cosine
-  MAX_EPOCH: 15  # modified from 200
+  MAX_EPOCH: 15
   MOMENTUM: 0.9
   WEIGHT_DECAY: 0.05
   OPTIMIZING_METHOD: adamw
 MODEL:
-  NUM_CLASSES: 400
   ARCH: mvit
   MODEL_NAME: CSTS
   LOSS_FUNC: kldiv
   DROPOUT_RATE: 0.5
+  LOSS_ALPHA: 0.05  # loss weights
 TEST:
   ENABLE: True
   DATASET: ego4d_av_gaze_forecast
   BATCH_SIZE: 96
   NUM_SPATIAL_CROPS: 1
   NUM_ENSEMBLE_VIEWS: 1
-  FULL_FRAME_TEST: False
 DATA_LOADER:
   NUM_WORKERS: 8  # set as 0 if you want to add breaking point in _getitem_()
   PIN_MEMORY: True

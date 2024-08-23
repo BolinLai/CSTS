@@ -189,7 +189,7 @@ class Aria_av_gaze_forecast(torch.utils.data.Dataset):
                 continue
 
             ori_frame_length = video_container.streams.video[0].frames
-            frame_length = 60  # only sample in the first 60 frames for gaze forecasting
+            frame_length = 60  # only the first 60 frames (3s) are observable, the remaining 40 frames (2s) are unseen
             # Decode video. Meta info is used to perform selective decoding.
             frames, frames_idx = decoder.decode(
                 container=video_container,
@@ -203,7 +203,7 @@ class Aria_av_gaze_forecast(torch.utils.data.Dataset):
                 max_spatial_scale=min_scale,  # only used in torchvision backend
                 use_offset=self.cfg.DATA.USE_OFFSET_SAMPLING,
                 get_frame_idx=True,
-                frames_length_limit=frame_length,  # sample in the first 90 frames
+                frames_length_limit=frame_length
             )
 
             audio = np.load(self._path_to_audios[index])
@@ -423,7 +423,7 @@ class Aria_av_gaze_forecast(torch.utils.data.Dataset):
         Returns:
             (int): the number of videos in the dataset.
         """
-        return self.num_videos if self.cfg.TEST.FULL_FRAME_TEST is False else self.num_full_frame_inputs
+        return self.num_videos
 
     @property
     def num_videos(self):
@@ -432,7 +432,3 @@ class Aria_av_gaze_forecast(torch.utils.data.Dataset):
             (int): the number of videos in the dataset.
         """
         return len(self._path_to_videos)
-
-    @property
-    def num_full_frame_inputs(self):
-        return len(self._full_frame_inputs)

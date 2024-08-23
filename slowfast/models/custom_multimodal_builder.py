@@ -464,14 +464,13 @@ class CSTS(nn.Module):
 
         # Decoder (Transformer)
         feat, thw = self.decode_block1(x_reweight, thw)  # (B, 1024, 768)  1024 = 4*16*16
-        # feat, thw = self.decode_block1(av_fuse, thw)  # (B, 1024, 768)  1024 = 4*16*16
-        feat = feat + (inter_feat[-1][0] if self.global_embed_on is False else inter_feat[-1][0][:, self.global_embed_num:, :])
+        feat = feat + inter_feat[-1][0]
 
         feat, thw = self.decode_block2(feat, thw)  # (B, 4096, 384)  4096 = 4*32*32
-        feat = feat + (inter_feat[-2][0] if self.global_embed_on is False else inter_feat[-2][0][:, self.global_embed_num:, :])
+        feat = feat + inter_feat[-2][0]
 
         feat, thw = self.decode_block3(feat, thw)  # (B, 16384, 192)  16384 = 4*64*64
-        feat = feat + (inter_feat[-3][0] if self.global_embed_on is False else inter_feat[-3][0][:, self.global_embed_num:, :])
+        feat = feat + inter_feat[-3][0]
 
         feat, thw = self.decode_block4(feat, thw)  # (B, 32768, 96)  16384 = 8*64*64
         feat = feat.reshape(feat.size(0), *thw, feat.size(2)).permute(0, 4, 1, 2, 3)

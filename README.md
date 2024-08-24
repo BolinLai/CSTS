@@ -19,9 +19,9 @@
 ### TODO:
 
 - [x] Codes
-- [ ] Checkpoints
+- [x] Checkpoints
 - [x] Data Split
-- [ ] Update README (in progress)
+- [x] Update README
 - [ ] Add codes for gaze estimation
 - [ ] Upload the list of Ego4D video ids for quick dowload
 - [ ] Visualization codes

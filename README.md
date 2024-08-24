@@ -170,7 +170,6 @@ CUDA_VISIBLE_DEVICES=0 python tools/run_net.py \
     DATA.PATH_PREFIX /path/to/Ego4D/clips.gaze \
     TEST.CHECKPOINT_FILE_PATH out/csts_ego4d/checkpoints/checkpoint_epoch_00005.pyth \
     OUTPUT_DIR out/csts_ego4d/test
-    [DATA_LOADER.RETURN_TARGET_FRAME True]
 ```
 
 Run evaluation on Aria dataset.
@@ -184,7 +183,6 @@ CUDA_VISIBLE_DEVICES=0 python tools/run_net.py \
     DATA.PATH_PREFIX /path/to/Aria/clips \
     TEST.CHECKPOINT_FILE_PATH out/csts_aria/checkpoints/checkpoint_epoch_00005.pyth \
     OUTPUT_DIR out/csts_aria/test
-    [DATA_LOADER.RETURN_TARGET_FRAME True]
 ```
 
 Note: You need to replace `DATA.PATH_PREFIX` with your local path to video clips, replace `TEST.CHECKPOINT_FILE_PATH` with the path of the checkpoint that you want to evaluate, and replace `OUTPUT_DIR` with the path of saving evaluation logs.

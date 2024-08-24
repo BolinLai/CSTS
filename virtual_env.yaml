@@ -195,4 +195,3 @@ dependencies:
     - wheel==0.37.0
     - yacs==0.1.8
     - zipp==3.5.0
-#    - -e git+https://github.com/facebookresearch/detectron2.git@main#egg=detectron2

@@ -22,8 +22,9 @@
 - [x] Checkpoints
 - [x] Data Split
 - [x] Update README
+- [ ] Update code of Aria dataset preprocessing
+- [ ] Upload the list of Ego4D video ids for quick download
 - [ ] Add codes for gaze estimation
-- [ ] Upload the list of Ego4D video ids for quick dowload
 - [ ] Visualization codes
 
 
@@ -115,11 +116,9 @@ TODO
 
 ## Model Weights
 
-|       |                                                        Egocentric Gaze Anticipation                                                        | Egocentric Gaze Estimation |
-|:-----:|:------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------:|
-| Ego4D | [download](https://www.dropbox.com/scl/fi/r8kwag7bi7klwx3gzh5sa/csts_ego4d_forecast.pyth?rlkey=8d13mx2ee7o0hoe63gexlp4jb&st=eb56bpzh&dl=1) |        (coming...)         |
-| Aria  | [download](https://www.dropbox.com/scl/fi/0lv1n1wtfvrbfyxl7765h/csts_aria_forecast.pyth?rlkey=06ugxia8dvpemb07aa3r1u4im&st=f1rvl9o2&dl=1)  |        (coming...)         |
+Model Weights for Ego4D: [download](https://www.dropbox.com/scl/fi/r8kwag7bi7klwx3gzh5sa/csts_ego4d_forecast.pyth?rlkey=8d13mx2ee7o0hoe63gexlp4jb&st=eb56bpzh&dl=1)
 
+Model Weights for Aria: [download](https://www.dropbox.com/scl/fi/0lv1n1wtfvrbfyxl7765h/csts_aria_forecast.pyth?rlkey=06ugxia8dvpemb07aa3r1u4im&st=f1rvl9o2&dl=1)
 
 ## Training
 

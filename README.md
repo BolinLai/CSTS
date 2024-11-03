@@ -6,15 +6,22 @@
 
 
 ## Contents
-- [Problem Definition](#problem-definition)
-- [Approach](#approach)
-- [Setup](#setup)
-- [Datasets](#dataset)
-- [Model Weights](#model-weights)
-- [Training](#training)
-- [Evaluation](#evaluation)
-- [BibTeX](#bibtex)
-- [Acknowledgement](#acknowledgement)
+- [Listen to Look into the Future: Audio-Visual Egocentric Gaze Anticipation](#listen-to-look-into-the-future-audio-visual-egocentric-gaze-anticipation)
+    - [ECCV 2024](#eccv-2024)
+    - [Project Page | Paper](#project-page--paper)
+  - [Contents](#contents)
+    - [TODO:](#todo)
+  - [Problem Definition](#problem-definition)
+  - [Approach](#approach)
+  - [Setup](#setup)
+  - [Dataset](#dataset)
+    - [Ego4D](#ego4d)
+    - [Aria](#aria)
+  - [Model Weights](#model-weights)
+  - [Training](#training)
+  - [Evaluation](#evaluation)
+  - [BibTeX](#bibtex)
+  - [Acknowledgement](#acknowledgement)
 
 ### TODO:
 
@@ -196,13 +203,15 @@ You may find it's hard to fully reproduce the results if you train the model aga
 
 ## BibTeX
 
-```
-@article{lai2023listen,
-        title={Listen to look into the future: Audio-visual egocentric gaze anticipation},
-        author={Lai, Bolin and Ryan, Fiona and Jia, Wenqi and Liu, Miao and Rehg, James M},
-        journal={arXiv preprint arXiv:2305.03907},
-        year={2023}
-      }
+```BibTeX
+@inproceedings{lai2024listen,
+  title={Listen to look into the future: Audio-visual egocentric gaze anticipation},
+  author={Lai, Bolin and Ryan, Fiona and Jia, Wenqi and Liu, Miao and Rehg, James M},
+  booktitle={European Conference on Computer Vision},
+  pages={192--210},
+  year={2024},
+  organization={Springer}
+}
 ```
 
 

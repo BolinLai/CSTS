@@ -6,18 +6,17 @@
 
 
 ## Contents
-- [Listen to Look into the Future: Audio-Visual Egocentric Gaze Anticipation](#listen-to-look-into-the-future-audio-visual-egocentric-gaze-anticipation)
-    - [Problem Definition](#problem-definition)
-    - [Approach](#approach)
-  - [Setup](#setup)
-  - [Dataset](#dataset)
-    - [Ego4D](#ego4d)
-    - [Aria](#aria)
-  - [Model Weights](#model-weights)
-  - [Training](#training)
-  - [Evaluation](#evaluation)
-  - [BibTeX](#bibtex)
-  - [Acknowledgement](#acknowledgement)
+- [Problem Definition](#problem-definition)
+- [Approach](#approach)
+- [Setup](#setup)
+- [Dataset](#dataset)
+  - [Ego4D](#ego4d)
+  - [Aria](#aria)
+- [Model Weights](#model-weights)
+- [Training](#training)
+- [Evaluation](#evaluation)
+- [BibTeX](#bibtex)
+- [Acknowledgement](#acknowledgement)
 
 ### TODO:
 

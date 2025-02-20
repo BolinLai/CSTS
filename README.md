@@ -2,17 +2,13 @@
 
 ### ECCV 2024
 
-### [Project Page](https://bolinlai.github.io/CSTS-EgoGazeAnticipation/) | [Paper](https://arxiv.org/pdf/2305.03907)
+### [Project Page](https://bolinlai.github.io/CSTS-EgoGazeAnticipation/) | [Paper](https://arxiv.org/pdf/2305.03907) | [HuggingFace](https://huggingface.co/bolinlai/CSTS)
 
 
 ## Contents
 - [Listen to Look into the Future: Audio-Visual Egocentric Gaze Anticipation](#listen-to-look-into-the-future-audio-visual-egocentric-gaze-anticipation)
-    - [ECCV 2024](#eccv-2024)
-    - [Project Page | Paper](#project-page--paper)
-  - [Contents](#contents)
-    - [TODO:](#todo)
-  - [Problem Definition](#problem-definition)
-  - [Approach](#approach)
+    - [Problem Definition](#problem-definition)
+    - [Approach](#approach)
   - [Setup](#setup)
   - [Dataset](#dataset)
     - [Ego4D](#ego4d)
@@ -123,9 +119,7 @@ TODO
 
 ## Model Weights
 
-Model Weights for Ego4D: [download](https://www.dropbox.com/scl/fi/r8kwag7bi7klwx3gzh5sa/csts_ego4d_forecast.pyth?rlkey=8d13mx2ee7o0hoe63gexlp4jb&st=eb56bpzh&dl=1)
-
-Model Weights for Aria: [download](https://www.dropbox.com/scl/fi/0lv1n1wtfvrbfyxl7765h/csts_aria_forecast.pyth?rlkey=06ugxia8dvpemb07aa3r1u4im&st=f1rvl9o2&dl=1)
+Our model weights are available on [HuggingFace](https://huggingface.co/bolinlai/CSTS).
 
 ## Training
 

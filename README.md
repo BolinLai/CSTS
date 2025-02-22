@@ -4,6 +4,8 @@
 
 ### [Project Page](https://bolinlai.github.io/CSTS-EgoGazeAnticipation/) | [Paper](https://arxiv.org/pdf/2305.03907) | [HuggingFace](https://huggingface.co/bolinlai/CSTS)
 
+#### [Bolin Lai](https://bolinlai.github.io/), [Fiona Ryan](https://fkryan.github.io/), [Wenqi Jia](https://vjwq.github.io/), [Miao Liu*](https://aptx4869lm.github.io/), [James M. Rehg*](https://rehg.org/)
+
 
 ## Contents
 - [Problem Definition](#problem-definition)
@@ -26,8 +28,6 @@
 - [x] Update README
 - [ ] Update code of Aria dataset preprocessing
 - [ ] Upload the list of Ego4D video ids for quick download
-- [ ] Add codes for gaze estimation
-- [ ] Visualization codes
 
 
 **We also have another work for egocentric gaze estimation. You can find more details [here](https://bolinlai.github.io/GLC-EgoGazeEst/) if you are interested.**

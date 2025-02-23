@@ -26,7 +26,6 @@
 - [x] Checkpoints
 - [x] Data Split
 - [x] Update README
-- [ ] Update code of Aria dataset preprocessing
 - [ ] Upload the list of Ego4D video ids for quick download
 
 
@@ -111,9 +110,7 @@ We use the same split in our [prior work](https://github.com/BolinLai/GLC/blob/m
 
 ### Aria
 
-TODO
-
-(The Aria dataset is in a very different format than it was when we started our work. We need more time to update our codes. Thank you for your patience.)
+The Aria dataset is in a very different format than it was when we started our work. We provide a video matching spreadsheet `data/video_id_matching.xlsx` showing the mapping of the video ids we used in `data/train_aria_gaze.csv` and `data/test_aria_gaze.csv` with the Aria dataset. Likewise, you can follow the preprocessing steps of Ego4D to prepare Aria dataset for training/evaluation using `data/preprocess.py`.
 
 
 ## Model Weights

@@ -20,14 +20,6 @@
 - [BibTeX](#bibtex)
 - [Acknowledgement](#acknowledgement)
 
-### TODO:
-
-- [x] Codes
-- [x] Checkpoints
-- [x] Data Split
-- [x] Update README
-- [ ] Upload the list of Ego4D video ids for quick download
-
 
 **We also have another work for egocentric gaze estimation. You can find more details [here](https://bolinlai.github.io/GLC-EgoGazeEst/) if you are interested.**
 
@@ -66,7 +58,7 @@ We use the same split in our [prior work](https://github.com/BolinLai/GLC/blob/m
 2. We only need to download the subset of Ego4D that has gaze data. You can download all the gaze data using the CLI tool on this [page](https://github.com/facebookresearch/Ego4d/blob/main/ego4d/cli/README.md).
 
 
-3. Gaze annotations are organized in a bunch of csv files. Each file corresponds to a video. Unfortunately, Ego4D hasn't provided a command to download all of these videos yet. You need to download videos via the video ids (i.e. the name of each csv file) using the CLI tool and --video_uids following [instructions](https://ego4d-data.org/docs/CLI/).
+3. Gaze annotations are organized in a bunch of csv files. Each file corresponds to a video. Unfortunately, Ego4D hasn't provided a command to download all of these videos yet. You need to download videos via the video ids (i.e. the name of each csv file) using the CLI tool and --video_uids following [instructions](https://ego4d-data.org/docs/CLI/). We provide a [file](https://github.com/BolinLai/CSTS/blob/main/data/ego4d_video_ids.txt) containing all video ids we used.
 
 
 4. Two videos in Ego4D subset don't have audio streams. We provide the missing audio files [here](https://drive.google.com/drive/folders/1iZuuRiflog9AazCtLXa9PbIYg-S3vENs?usp=drive_link).
@@ -110,7 +102,7 @@ We use the same split in our [prior work](https://github.com/BolinLai/GLC/blob/m
 
 ### Aria
 
-The Aria dataset is in a very different format than it was when we started our work. We provide a video matching spreadsheet `data/video_id_matching.xlsx` showing the mapping of the video ids we used in `data/train_aria_gaze.csv` and `data/test_aria_gaze.csv` with the Aria dataset. Likewise, you can follow the preprocessing steps of Ego4D to prepare Aria dataset for training/evaluation using `data/preprocess.py`.
+The Aria dataset is in a very different format than it was when we started our work. We provide a video matching spreadsheet `data/aria_video_ids_matching.xlsx` showing the mapping of the video ids we used in `data/train_aria_gaze.csv` and `data/test_aria_gaze.csv` with the Aria dataset. Likewise, you can follow the preprocessing steps of Ego4D to prepare Aria dataset for training/evaluation using `data/preprocess.py`.
 
 
 ## Model Weights
